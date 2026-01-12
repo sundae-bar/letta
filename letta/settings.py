@@ -131,6 +131,13 @@ class ModelSettings(BaseSettings):
     # deepseek
     deepseek_api_key: Optional[str] = None
 
+    # chutes
+    chutes_api_key: Optional[str] = None
+    chutes_api_base: str = Field(
+        default="https://api.chutes.ai/v1",
+        validation_alias=AliasChoices("CHUTES_BASE_URL", "CHUTES_API_BASE"),
+    )
+
     # xAI / Grok
     xai_api_key: Optional[str] = None
 

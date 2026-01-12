@@ -56,6 +56,7 @@ from letta.schemas.providers import (
     AnthropicProvider,
     AzureProvider,
     BedrockProvider,
+    ChutesProvider,
     DeepSeekProvider,
     GoogleAIProvider,
     GoogleVertexProvider,
@@ -307,6 +308,14 @@ class SyncServer(object):
                 DeepSeekProvider(
                     name="deepseek",
                     api_key_enc=Secret.from_plaintext(model_settings.deepseek_api_key),
+                )
+            )
+        if model_settings.chutes_api_key:
+            self._enabled_providers.append(
+                ChutesProvider(
+                    name="chutes",
+                    api_key_enc=Secret.from_plaintext(model_settings.chutes_api_key),
+                    base_url=model_settings.chutes_api_base,
                 )
             )
         if model_settings.xai_api_key:
