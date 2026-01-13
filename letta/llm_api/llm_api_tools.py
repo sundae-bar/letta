@@ -179,13 +179,19 @@ def create(
             actor = UserManager().get_user_or_default(user_id=user_id)
             api_key = ProviderManager().get_override_key(llm_config.provider_name, actor=actor)
         else:
+            # Check for Chutes provider first
+            is_chutes = (llm_config.model_endpoint and "chutes.ai" in llm_config.model_endpoint) or (
+                llm_config.provider_name == "chutes"
+            )
+            if is_chutes:
+                api_key = model_settings.chutes_api_key or os.environ.get("CHUTES_API_KEY")
             # Prefer OpenRouter key when targeting OpenRouter
             is_openrouter = (llm_config.model_endpoint and "openrouter.ai" in llm_config.model_endpoint) or (
                 llm_config.provider_name == "openrouter"
             )
             if is_openrouter:
                 api_key = model_settings.openrouter_api_key or os.environ.get("OPENROUTER_API_KEY")
-            if not is_openrouter or not api_key:
+            if not is_chutes and (not is_openrouter or not api_key):
                 api_key = model_settings.openai_api_key or os.environ.get("OPENAI_API_KEY")
             # the openai python client requires some API key string
             api_key = api_key or "DUMMY_API_KEY"
