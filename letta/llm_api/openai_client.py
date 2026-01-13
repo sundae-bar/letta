@@ -176,6 +176,22 @@ class OpenAIClient(LLMClientBase):
 
         kwargs = {"api_key": api_key, "base_url": llm_config.model_endpoint}
 
+        # Chutes-specific overrides: use Chutes key
+        is_chutes = (llm_config.model_endpoint and "chutes.ai" in llm_config.model_endpoint) or (
+            llm_config.provider_name == "chutes"
+        )
+        if is_chutes:
+            chutes_key = model_settings.chutes_api_key or os.environ.get("CHUTES_API_KEY")
+            if chutes_key:
+                kwargs["api_key"] = chutes_key
+            # Only log once per unique endpoint+provider combination to reduce noise
+            if not hasattr(self, '_logged_chutes_config'):
+                api_key_preview = f"{chutes_key[:10]}..." if chutes_key and len(chutes_key) > 10 else chutes_key
+                log_msg = f"🔑 OPENAI_CLIENT: CHUTES provider={llm_config.provider_name} endpoint={llm_config.model_endpoint} api_key={api_key_preview} has_api_key={bool(chutes_key)}"
+                logger.info(log_msg)
+                print(f"[LLM_API] {log_msg}", flush=True)
+                self._logged_chutes_config = True
+
         # OpenRouter-specific overrides: use OpenRouter key and optional headers
         is_openrouter = (llm_config.model_endpoint and "openrouter.ai" in llm_config.model_endpoint) or (
             llm_config.provider_name == "openrouter"
@@ -211,6 +227,22 @@ class OpenAIClient(LLMClientBase):
         if not api_key:
             api_key = model_settings.openai_api_key or os.environ.get("OPENAI_API_KEY")
         kwargs = {"api_key": api_key, "base_url": llm_config.model_endpoint}
+
+        # Chutes-specific overrides: use Chutes key
+        is_chutes = (llm_config.model_endpoint and "chutes.ai" in llm_config.model_endpoint) or (
+            llm_config.provider_name == "chutes"
+        )
+        if is_chutes:
+            chutes_key = model_settings.chutes_api_key or os.environ.get("CHUTES_API_KEY")
+            if chutes_key:
+                kwargs["api_key"] = chutes_key
+            # Only log once per unique endpoint+provider combination to reduce noise
+            if not hasattr(self, '_logged_chutes_config'):
+                api_key_preview = f"{chutes_key[:10]}..." if chutes_key and len(chutes_key) > 10 else chutes_key
+                log_msg = f"🔑 OPENAI_CLIENT_ASYNC: CHUTES provider={llm_config.provider_name} endpoint={llm_config.model_endpoint} api_key={api_key_preview} has_api_key={bool(chutes_key)}"
+                logger.info(log_msg)
+                print(f"[LLM_API] {log_msg}", flush=True)
+                self._logged_chutes_config = True
 
         is_openrouter = (llm_config.model_endpoint and "openrouter.ai" in llm_config.model_endpoint) or (
             llm_config.provider_name == "openrouter"
