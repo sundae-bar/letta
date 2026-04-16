@@ -39,6 +39,8 @@ from letta.orm import (
     Group as GroupModel,
     GroupsAgents,
     IdentitiesAgents,
+    Skill as SkillModel,
+    SkillsAgents,
     Source as SourceModel,
     SourcePassage,
     SourcesAgents,
@@ -418,6 +420,11 @@ class AgentManager:
         if agent_create.include_multi_agent_tools:
             tool_names |= calculate_multi_agent_tools()
 
+        # Auto-include load_skill tool when agent has skills
+        if agent_create.skill_ids:
+            from letta.constants import SKILLS_TOOLS
+            tool_names |= set(SKILLS_TOOLS)
+
         supplied_ids = set(agent_create.tool_ids or [])
 
         # Use folder_ids if provided, otherwise fall back to deprecated source_ids for backwards compatibility
@@ -552,6 +559,14 @@ class AgentManager:
                     [{"agent_id": aid, "identity_id": iid} for iid in identity_ids],
                 )
 
+                skill_ids = list(agent_create.skill_ids or [])
+                if skill_ids:
+                    await self._bulk_insert_pivot_async(
+                        session,
+                        SkillsAgents.__table__,
+                        [{"agent_id": aid, "skill_id": sid} for sid in skill_ids],
+                    )
+
                 env_rows = []
                 agent_secrets = agent_create.secrets or agent_create.tool_exec_environment_variables
 
@@ -576,6 +591,8 @@ class AgentManager:
                 include_relationships = []
                 if tool_ids:
                     include_relationships.append("tools")
+                if skill_ids:
+                    include_relationships.append("skills")
                 if source_ids:
                     include_relationships.append("sources")
                 if block_ids:
@@ -590,6 +607,15 @@ class AgentManager:
                 if agent_secrets and env_rows:
                     result.tool_exec_environment_variables = [AgentEnvironmentVariable(**row) for row in env_rows]
                     result.secrets = [AgentEnvironmentVariable(**row) for row in env_rows]
+
+                # Populate skills directly since the ORM relationship
+                # may not see just-flushed rows within the same transaction
+                if skill_ids:
+                    from letta.schemas.skill import Skill as PydanticSkill
+                    skill_objs = await SkillModel.read_multiple_async(
+                        db_session=session, identifiers=skill_ids, actor=actor
+                    )
+                    result.skills = [s.to_pydantic() for s in skill_objs]
 
                 # initial message sequence (skip if _init_with_no_messages is True)
                 if not _init_with_no_messages:
@@ -814,6 +840,15 @@ class AgentManager:
                     [{"agent_id": aid, "identity_id": iid} for iid in new_idents],
                 )
                 session.expire(agent, ["identities"])
+
+            if agent_update.skill_ids is not None:
+                new_skills = set(agent_update.skill_ids)
+                await self._replace_pivot_rows_async(
+                    session,
+                    SkillsAgents.__table__,
+                    aid,
+                    [{"agent_id": aid, "skill_id": sid} for sid in new_skills],
+                )
 
             if agent_update.tags is not None:
                 await self._replace_pivot_rows_async(

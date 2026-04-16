@@ -409,6 +409,7 @@ async def initialize_message_sequence_async(
     if memory_edit_timestamp is None:
         memory_edit_timestamp = get_local_time()
 
+    agent_skills = getattr(agent_state, "skills", None)
     full_system_message = await PromptGenerator.compile_system_message_async(
         system_prompt=agent_state.system,
         in_context_memory=agent_state.memory,
@@ -420,6 +421,7 @@ async def initialize_message_sequence_async(
         archival_memory_size=archival_memory_size,
         sources=agent_state.sources,
         max_files_open=agent_state.max_files_open,
+        skills=agent_skills,
     )
     first_user_message = get_login_event(agent_state.timezone)  # event letting Letta know the user just logged in
 
