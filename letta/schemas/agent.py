@@ -21,6 +21,7 @@ from letta.schemas.message import Message, MessageCreate
 from letta.schemas.model import ModelSettingsUnion
 from letta.schemas.openai.chat_completion_response import UsageStatistics
 from letta.schemas.response_format import ResponseFormatUnion
+from letta.schemas.skill import Skill as PydanticSkill
 from letta.schemas.source import Source
 from letta.schemas.tool import Tool
 from letta.schemas.tool_rule import ToolRule
@@ -104,6 +105,7 @@ class AgentState(OrmMetadataBase, validate_assignment=True):
     memory: Memory = Field(..., description="Deprecated: Use `blocks` field instead. The in-context memory of the agent.", deprecated=True)
     blocks: List[Block] = Field(..., description="The memory blocks used by the agent.")
     tools: List[Tool] = Field(..., description="The tools used by the agent.")
+    skills: List["PydanticSkill"] = Field(default_factory=list, description="The skills available to the agent.")
     sources: List[Source] = Field(
         ..., description="Deprecated: Use `folders` field instead. The sources used by the agent.", deprecated=True
     )
@@ -211,6 +213,7 @@ class CreateAgent(BaseModel, validate_assignment=True):  #
     )
     folder_ids: Optional[List[str]] = Field(None, description="The ids of the folders used by the agent.")
     block_ids: Optional[List[str]] = Field(None, description="The ids of the blocks used by the agent.")
+    skill_ids: Optional[List[str]] = Field(None, description="The ids of the skills available to the agent.")
     tool_rules: Optional[List[ToolRule]] = Field(None, description="The tool rules governing the agent.")
     tags: Optional[List[str]] = Field(None, description="The tags associated with the agent.")
     system: Optional[str] = Field(None, description="The system prompt used by the agent.")
@@ -418,6 +421,7 @@ class UpdateAgent(BaseModel):
     )
     folder_ids: Optional[List[str]] = Field(None, description="The ids of the folders used by the agent.")
     block_ids: Optional[List[str]] = Field(None, description="The ids of the blocks used by the agent.")
+    skill_ids: Optional[List[str]] = Field(None, description="The ids of the skills available to the agent.")
     tags: Optional[List[str]] = Field(None, description="The tags associated with the agent.")
     system: Optional[str] = Field(None, description="The system prompt used by the agent.")
     tool_rules: Optional[List[ToolRule]] = Field(None, description="The tool rules governing the agent.")

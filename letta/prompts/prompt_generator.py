@@ -159,6 +159,34 @@ class PromptGenerator:
 
         return formatted_prompt
 
+    @staticmethod
+    def compile_skills_block(skills: Optional[List] = None) -> Optional[str]:
+        """Generate an available skills block for the agent's system prompt.
+
+        This creates a structured section listing skills the agent can load
+        on demand using the load_skill tool.
+
+        Args:
+            skills: List of Skill objects attached to the agent
+
+        Returns:
+            A formatted string with the available skills block, or None if no skills
+        """
+        if not skills:
+            return None
+
+        lines = [
+            "<available_skills>",
+            "You have access to the following skills. Skills are instructions and resources "
+            "you can load to help complete specialized tasks. Use the `load_skill` tool to "
+            "load a skill's full content when you need it.",
+            "",
+        ]
+        for skill in skills:
+            lines.append(f"- **{skill.name}**: {skill.description}")
+        lines.append("</available_skills>")
+        return "\n".join(lines)
+
     @trace_method
     @staticmethod
     async def compile_system_message_async(
@@ -175,6 +203,7 @@ class PromptGenerator:
         sources: Optional[List] = None,
         max_files_open: Optional[int] = None,
         llm_config: Optional[object] = None,
+        skills: Optional[List] = None,
     ) -> str:
         tool_constraint_block = None
         if tool_rules_solver is not None:
@@ -185,6 +214,18 @@ class PromptGenerator:
             raise NotImplementedError
         else:
             pass
+
+        # Inject available skills block into system prompt before memory compilation
+        skills_block = PromptGenerator.compile_skills_block(skills)
+        if skills_block:
+            # Insert after </base_instructions> if present, otherwise append before memory
+            if "</base_instructions>" in system_prompt:
+                system_prompt = system_prompt.replace(
+                    "</base_instructions>",
+                    "</base_instructions>\n\n" + skills_block,
+                )
+            else:
+                system_prompt = system_prompt + "\n\n" + skills_block
 
         memory_with_sources = in_context_memory.compile(
             tool_usage_rules=tool_constraint_block, sources=sources, max_files_open=max_files_open, llm_config=llm_config

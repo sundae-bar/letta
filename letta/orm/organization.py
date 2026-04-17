@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from letta.orm.provider_trace import ProviderTrace
     from letta.orm.run import Run
     from letta.orm.sandbox_config import AgentEnvironmentVariable, SandboxConfig, SandboxEnvironmentVariable
+    from letta.orm.skill import Skill
     from letta.orm.tool import Tool
     from letta.orm.user import User
 
@@ -79,3 +80,4 @@ class Organization(SqlalchemyBase):
     provider_traces: Mapped[List["ProviderTrace"]] = relationship(
         "ProviderTrace", back_populates="organization", cascade="all, delete-orphan"
     )
+    skills: Mapped[List["Skill"]] = relationship("Skill", back_populates="organization", cascade="all, delete-orphan")

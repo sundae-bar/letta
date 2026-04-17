@@ -13,6 +13,7 @@ from letta.constants import (
     BASE_VOICE_SLEEPTIME_TOOLS,
     BUILTIN_TOOLS,
     FILES_TOOLS,
+    SKILLS_TOOLS,
     LETTA_PARALLEL_SAFE_TOOLS,
     LETTA_TOOL_MODULE_NAMES,
     LETTA_TOOL_SET,
@@ -1148,6 +1149,8 @@ class ToolManager:
                 tool_type = ToolType.LETTA_BUILTIN
             elif name in FILES_TOOLS:
                 tool_type = ToolType.LETTA_FILES_CORE
+            elif name in SKILLS_TOOLS:
+                tool_type = ToolType.LETTA_SKILLS
             else:
                 logger.warning(f"Tool name {name} is not in any known base tool set, skipping")
                 continue

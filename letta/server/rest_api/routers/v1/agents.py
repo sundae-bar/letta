@@ -561,6 +561,41 @@ async def detach_tool_from_agent(
     return await server.agent_manager.get_agent_by_id_async(agent_id=agent_id, actor=actor)
 
 
+@router.patch("/{agent_id}/skills/attach/{skill_id}", response_model=None, operation_id="attach_skill_to_agent")
+async def attach_skill_to_agent(
+    skill_id: str,
+    agent_id: str,
+    server: "SyncServer" = Depends(get_letta_server),
+    headers: HeaderParams = Depends(get_headers),
+):
+    """Attach a skill to an agent."""
+    actor = await server.user_manager.get_actor_or_default_async(actor_id=headers.actor_id)
+    await server.skill_manager.attach_skill_to_agent(skill_id=skill_id, agent_id=agent_id, actor=actor)
+
+
+@router.patch("/{agent_id}/skills/detach/{skill_id}", response_model=None, operation_id="detach_skill_from_agent")
+async def detach_skill_from_agent(
+    skill_id: str,
+    agent_id: str,
+    server: "SyncServer" = Depends(get_letta_server),
+    headers: HeaderParams = Depends(get_headers),
+):
+    """Detach a skill from an agent."""
+    actor = await server.user_manager.get_actor_or_default_async(actor_id=headers.actor_id)
+    await server.skill_manager.detach_skill_from_agent(skill_id=skill_id, agent_id=agent_id, actor=actor)
+
+
+@router.get("/{agent_id}/skills", response_model=list, operation_id="list_skills_for_agent")
+async def list_skills_for_agent(
+    agent_id: str,
+    server: "SyncServer" = Depends(get_letta_server),
+    headers: HeaderParams = Depends(get_headers),
+):
+    """List all skills attached to an agent."""
+    actor = await server.user_manager.get_actor_or_default_async(actor_id=headers.actor_id)
+    return await server.skill_manager.list_skills_for_agent(agent_id=agent_id, actor=actor)
+
+
 class ModifyApprovalRequest(BaseModel):
     """Request body for modifying tool approval requirements."""
 

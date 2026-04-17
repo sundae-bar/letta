@@ -13,6 +13,7 @@ from letta.schemas.group import Group, GroupCreate
 from letta.schemas.letta_message import ApprovalReturn
 from letta.schemas.mcp import MCPServer
 from letta.schemas.message import Message, MessageCreate, ToolReturn
+from letta.schemas.skill import CreateSkill, Skill
 from letta.schemas.source import Source, SourceCreate
 from letta.schemas.tool import Tool
 from letta.schemas.user import User
@@ -338,6 +339,23 @@ class MCPServerSchema(BaseModel):
         return {k: v for k, v in stdio_config.items() if k != "env"}
 
 
+class SkillSchema(CreateSkill):
+    """Skill with human-readable ID for agent file"""
+
+    __id_prefix__ = PrimitiveType.SKILL.value
+    id: str = Field(..., description="Human-readable identifier for this skill in the file")
+
+    @classmethod
+    def from_skill(cls, skill: Skill) -> "SkillSchema":
+        """Convert Skill to SkillSchema"""
+        create_skill = CreateSkill(
+            name=skill.name,
+            description=skill.description,
+            content=skill.content,
+        )
+        return cls(id=skill.id, **create_skill.model_dump())
+
+
 class AgentFileSchema(BaseModel):
     """Schema for serialized agent file that can be exported to JSON and imported into agent server."""
 
@@ -347,6 +365,7 @@ class AgentFileSchema(BaseModel):
     files: List[FileSchema] = Field(..., description="List of files in this agent file")
     sources: List[SourceSchema] = Field(..., description="List of sources in this agent file")
     tools: List[ToolSchema] = Field(..., description="List of tools in this agent file")
+    skills: List[SkillSchema] = Field(default_factory=list, description="List of skills in this agent file")
     mcp_servers: List[MCPServerSchema] = Field(..., description="List of MCP servers in this agent file")
     metadata: Dict[str, str] = Field(
         default_factory=dict, description="Metadata for this agent file, including revision_id and other export information."

@@ -48,6 +48,9 @@ class PrimitiveType(str, Enum):
     # Telemetry types
     PROVIDER_TRACE = "provider_trace"
 
+    # Skills
+    SKILL = "skill"
+
 
 class ProviderType(str, Enum):
     anthropic = "anthropic"
@@ -201,6 +204,7 @@ class ToolType(str, Enum):
     LETTA_VOICE_SLEEPTIME_CORE = "letta_voice_sleeptime_core"
     LETTA_BUILTIN = "letta_builtin"
     LETTA_FILES_CORE = "letta_files_core"
+    LETTA_SKILLS = "letta_skills"
     EXTERNAL_LANGCHAIN = "external_langchain"  # DEPRECATED
     EXTERNAL_COMPOSIO = "external_composio"  # DEPRECATED
     # TODO is "external" the right name here? Since as of now, MCP is local / doesn't support remote?
