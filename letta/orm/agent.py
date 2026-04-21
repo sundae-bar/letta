@@ -127,6 +127,7 @@ class Agent(SqlalchemyBase, OrganizationMixin, ProjectMixin, TemplateEntityMixin
         doc="Environment variables associated with this agent.",
     )
     tools: Mapped[List["Tool"]] = relationship("Tool", secondary="tools_agents", lazy="selectin", passive_deletes=True)
+    skills: Mapped[List["Skill"]] = relationship("Skill", secondary="skills_agents", lazy="selectin", passive_deletes=True)
     sources: Mapped[List["Source"]] = relationship("Source", secondary="sources_agents", lazy="selectin")
     core_memory: Mapped[List["Block"]] = relationship(
         "Block",
@@ -359,6 +360,7 @@ class Agent(SqlalchemyBase, OrganizationMixin, ProjectMixin, TemplateEntityMixin
         optional_fields = {
             "tags": [],
             "tools": [],
+            "skills": [],
             "sources": [],
             "memory": Memory(blocks=[]),
             "blocks": [],
@@ -385,6 +387,7 @@ class Agent(SqlalchemyBase, OrganizationMixin, ProjectMixin, TemplateEntityMixin
         # Only load requested relationships
         tags = self.awaitable_attrs.tags if "tags" in include_relationships or "agent.tags" in include_set else empty_list_async()
         tools = self.awaitable_attrs.tools if "tools" in include_relationships or "agent.tools" in include_set else empty_list_async()
+        skills = self.awaitable_attrs.skills if "skills" in include_relationships or "agent.skills" in include_set else empty_list_async()
         sources = (
             self.awaitable_attrs.sources if "sources" in include_relationships or "agent.sources" in include_set else empty_list_async()
         )
@@ -412,12 +415,13 @@ class Agent(SqlalchemyBase, OrganizationMixin, ProjectMixin, TemplateEntityMixin
             self.awaitable_attrs.file_agents if "memory" in include_relationships or "agent.blocks" in include_set else empty_list_async()
         )
 
-        (tags, tools, sources, memory, identities, multi_agent_group, tool_exec_environment_variables, file_agents) = await asyncio.gather(
-            tags, tools, sources, memory, identities, multi_agent_group, tool_exec_environment_variables, file_agents
+        (tags, tools, skills, sources, memory, identities, multi_agent_group, tool_exec_environment_variables, file_agents) = await asyncio.gather(
+            tags, tools, skills, sources, memory, identities, multi_agent_group, tool_exec_environment_variables, file_agents
         )
 
         state["tags"] = [t.tag for t in tags]
         state["tools"] = [t.to_pydantic() for t in tools]
+        state["skills"] = [s.to_pydantic() for s in skills]
         state["sources"] = [s.to_pydantic() for s in sources]
         state["memory"] = Memory(
             blocks=[m.to_pydantic() for m in memory],

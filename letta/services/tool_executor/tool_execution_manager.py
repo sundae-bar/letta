@@ -40,6 +40,7 @@ class ToolExecutorFactory:
         ToolType.LETTA_MULTI_AGENT_CORE: LettaMultiAgentToolExecutor,
         ToolType.LETTA_BUILTIN: LettaBuiltinToolExecutor,
         ToolType.LETTA_FILES_CORE: LettaFileToolExecutor,
+        ToolType.LETTA_SKILLS: LettaCoreToolExecutor,
         ToolType.EXTERNAL_MCP: ExternalMCPToolExecutor,
     }
 

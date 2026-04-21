@@ -409,6 +409,7 @@ async def initialize_message_sequence_async(
     if memory_edit_timestamp is None:
         memory_edit_timestamp = get_local_time()
 
+    agent_skills = getattr(agent_state, "skills", None)
     full_system_message = await PromptGenerator.compile_system_message_async(
         system_prompt=agent_state.system,
         in_context_memory=agent_state.memory,
@@ -420,6 +421,7 @@ async def initialize_message_sequence_async(
         archival_memory_size=archival_memory_size,
         sources=agent_state.sources,
         max_files_open=agent_state.max_files_open,
+        skills=agent_skills,
     )
     first_user_message = get_login_event(agent_state.timezone)  # event letting Letta know the user just logged in
 
@@ -806,6 +808,7 @@ def _apply_relationship_filters(
         "identities",
         "tool_exec_environment_variables",
         "tools",
+        "skills",
         "sources",
         "tags",
         "multi_agent_group",
@@ -829,6 +832,7 @@ def get_column_names_from_includes_params(
         "agent.sources": ["sources"],
         "agent.tags": ["tags"],
         "agent.tools": ["tools"],
+        "agent.skills": ["skills"],
         # legacy
         "memory": ["core_memory", "file_agents"],
         "identity_ids": ["identities"],
@@ -838,6 +842,7 @@ def get_column_names_from_includes_params(
         "sources": ["sources"],
         "tags": ["tags"],
         "tools": ["tools"],
+        "skills": ["skills"],
     }
     column_names = set()
     if includes:

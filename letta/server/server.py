@@ -106,6 +106,7 @@ from letta.services.source_manager import SourceManager
 from letta.services.step_manager import StepManager
 from letta.services.telemetry_manager import TelemetryManager
 from letta.services.tool_executor.tool_execution_manager import ToolExecutionManager
+from letta.services.skill_manager import SkillManager
 from letta.services.tool_manager import ToolManager
 from letta.services.user_manager import UserManager
 from letta.settings import DatabaseChoice, model_settings, settings, tool_settings
@@ -155,6 +156,7 @@ class SyncServer(object):
         self.passage_manager = PassageManager()
         self.user_manager = UserManager()
         self.tool_manager = ToolManager()
+        self.skill_manager = SkillManager()
         self.mcp_manager = MCPManager()
         self.mcp_server_manager = MCPServerManager()
         self.block_manager = BlockManager()

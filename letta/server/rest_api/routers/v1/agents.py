@@ -561,6 +561,41 @@ async def detach_tool_from_agent(
     return await server.agent_manager.get_agent_by_id_async(agent_id=agent_id, actor=actor)
 
 
+@router.patch("/{agent_id}/skills/attach/{skill_id}", response_model=None, operation_id="attach_skill_to_agent")
+async def attach_skill_to_agent(
+    skill_id: str,
+    agent_id: str,
+    server: "SyncServer" = Depends(get_letta_server),
+    headers: HeaderParams = Depends(get_headers),
+):
+    """Attach a skill to an agent."""
+    actor = await server.user_manager.get_actor_or_default_async(actor_id=headers.actor_id)
+    await server.skill_manager.attach_skill_to_agent(skill_id=skill_id, agent_id=agent_id, actor=actor)
+
+
+@router.patch("/{agent_id}/skills/detach/{skill_id}", response_model=None, operation_id="detach_skill_from_agent")
+async def detach_skill_from_agent(
+    skill_id: str,
+    agent_id: str,
+    server: "SyncServer" = Depends(get_letta_server),
+    headers: HeaderParams = Depends(get_headers),
+):
+    """Detach a skill from an agent."""
+    actor = await server.user_manager.get_actor_or_default_async(actor_id=headers.actor_id)
+    await server.skill_manager.detach_skill_from_agent(skill_id=skill_id, agent_id=agent_id, actor=actor)
+
+
+@router.get("/{agent_id}/skills", response_model=list, operation_id="list_skills_for_agent")
+async def list_skills_for_agent(
+    agent_id: str,
+    server: "SyncServer" = Depends(get_letta_server),
+    headers: HeaderParams = Depends(get_headers),
+):
+    """List all skills attached to an agent."""
+    actor = await server.user_manager.get_actor_or_default_async(actor_id=headers.actor_id)
+    return await server.skill_manager.list_skills_for_agent(agent_id=agent_id, actor=actor)
+
+
 class ModifyApprovalRequest(BaseModel):
     """Request body for modifying tool approval requirements."""
 
@@ -620,7 +655,7 @@ async def run_tool_for_agent(
 
     # Get agent with all relationships
     agent = await server.agent_manager.get_agent_by_id_async(
-        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
     )
 
     # Find the tool by name among attached tools
@@ -1508,7 +1543,7 @@ async def send_message(
     MetricRegistry().user_message_counter.add(1, get_ctx_attributes())
     # TODO: This is redundant, remove soon
     agent = await server.agent_manager.get_agent_by_id_async(
-        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
     )
     agent_eligible = agent.multi_agent_group is None or agent.multi_agent_group.manager_type in ["sleeptime", "voice_sleeptime"]
     model_compatible = agent.llm_config.model_endpoint_type in [
@@ -1758,7 +1793,7 @@ async def _process_message_background(
 
     try:
         agent = await server.agent_manager.get_agent_by_id_async(
-            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
         )
         agent_eligible = agent.multi_agent_group is None or agent.multi_agent_group.manager_type in ["sleeptime", "voice_sleeptime"]
         model_compatible = agent.llm_config.model_endpoint_type in [
@@ -1914,7 +1949,7 @@ async def send_message_async(
 
     if use_lettuce:
         agent_state = await server.agent_manager.get_agent_by_id_async(
-            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
         )
         # Allow V1 agents only if the message async flag is enabled
         is_v1_message_async_enabled = (

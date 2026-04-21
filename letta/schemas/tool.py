@@ -8,6 +8,7 @@ from letta.constants import (
     LETTA_CORE_TOOL_MODULE_NAME,
     LETTA_FILES_TOOL_MODULE_NAME,
     LETTA_MULTI_AGENT_TOOL_MODULE_NAME,
+    LETTA_SKILLS_TOOL_MODULE_NAME,
     LETTA_VOICE_TOOL_MODULE_NAME,
     MCP_TOOL_TAG_NAME_PREFIX,
 )
@@ -103,6 +104,8 @@ class Tool(BaseTool):
         elif self.tool_type in {ToolType.LETTA_FILES_CORE}:
             # If it's letta files tool, we generate the json_schema on the fly here
             self.json_schema = get_json_schema_from_module(module_name=LETTA_FILES_TOOL_MODULE_NAME, function_name=self.name)
+        elif self.tool_type in {ToolType.LETTA_SKILLS}:
+            self.json_schema = get_json_schema_from_module(module_name=LETTA_SKILLS_TOOL_MODULE_NAME, function_name=self.name)
 
         return self
 
