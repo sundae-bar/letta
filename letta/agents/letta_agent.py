@@ -185,7 +185,7 @@ class LettaAgent(BaseAgent):
         # TODO (cliandy): pass in run_id and use at send_message endpoints for all step functions
         agent_state = await self.agent_manager.get_agent_by_id_async(
             agent_id=self.agent_id,
-            include_relationships=["tools", "memory", "tool_exec_environment_variables", "sources"],
+            include_relationships=["tools", "memory", "tool_exec_environment_variables", "sources", "skills"],
             actor=self.actor,
         )
         result = await self._step(
@@ -221,7 +221,7 @@ class LettaAgent(BaseAgent):
     ):
         agent_state = await self.agent_manager.get_agent_by_id_async(
             agent_id=self.agent_id,
-            include_relationships=["tools", "memory", "tool_exec_environment_variables", "sources"],
+            include_relationships=["tools", "memory", "tool_exec_environment_variables", "sources", "skills"],
             actor=self.actor,
         )
         current_in_context_messages, new_in_context_messages = await _prepare_in_context_messages_no_persist_async(
@@ -913,7 +913,7 @@ class LettaAgent(BaseAgent):
         """
         agent_state = await self.agent_manager.get_agent_by_id_async(
             agent_id=self.agent_id,
-            include_relationships=["tools", "memory", "tool_exec_environment_variables", "sources"],
+            include_relationships=["tools", "memory", "tool_exec_environment_variables", "sources", "skills"],
             actor=self.actor,
         )
         current_in_context_messages, new_in_context_messages = await _prepare_in_context_messages_no_persist_async(

@@ -655,7 +655,7 @@ async def run_tool_for_agent(
 
     # Get agent with all relationships
     agent = await server.agent_manager.get_agent_by_id_async(
-        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
     )
 
     # Find the tool by name among attached tools
@@ -1543,7 +1543,7 @@ async def send_message(
     MetricRegistry().user_message_counter.add(1, get_ctx_attributes())
     # TODO: This is redundant, remove soon
     agent = await server.agent_manager.get_agent_by_id_async(
-        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+        agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
     )
     agent_eligible = agent.multi_agent_group is None or agent.multi_agent_group.manager_type in ["sleeptime", "voice_sleeptime"]
     model_compatible = agent.llm_config.model_endpoint_type in [
@@ -1793,7 +1793,7 @@ async def _process_message_background(
 
     try:
         agent = await server.agent_manager.get_agent_by_id_async(
-            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
         )
         agent_eligible = agent.multi_agent_group is None or agent.multi_agent_group.manager_type in ["sleeptime", "voice_sleeptime"]
         model_compatible = agent.llm_config.model_endpoint_type in [
@@ -1949,7 +1949,7 @@ async def send_message_async(
 
     if use_lettuce:
         agent_state = await server.agent_manager.get_agent_by_id_async(
-            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
         )
         # Allow V1 agents only if the message async flag is enabled
         is_v1_message_async_enabled = (

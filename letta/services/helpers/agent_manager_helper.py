@@ -808,6 +808,7 @@ def _apply_relationship_filters(
         "identities",
         "tool_exec_environment_variables",
         "tools",
+        "skills",
         "sources",
         "tags",
         "multi_agent_group",
@@ -831,6 +832,7 @@ def get_column_names_from_includes_params(
         "agent.sources": ["sources"],
         "agent.tags": ["tags"],
         "agent.tools": ["tools"],
+        "agent.skills": ["skills"],
         # legacy
         "memory": ["core_memory", "file_agents"],
         "identity_ids": ["identities"],
@@ -840,6 +842,7 @@ def get_column_names_from_includes_params(
         "sources": ["sources"],
         "tags": ["tags"],
         "tools": ["tools"],
+        "skills": ["skills"],
     }
     column_names = set()
     if includes:

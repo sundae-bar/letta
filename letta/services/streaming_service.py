@@ -93,7 +93,7 @@ class StreamingService:
 
         # load agent and check eligibility
         agent = await self.server.agent_manager.get_agent_by_id_async(
-            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools"]
+            agent_id, actor, include_relationships=["memory", "multi_agent_group", "sources", "tool_exec_environment_variables", "tools", "skills"]
         )
 
         agent_eligible = self._is_agent_eligible(agent)

@@ -54,6 +54,7 @@ class LettaCoreToolExecutor(ToolExecutor):
             "memory_rethink": self.memory_rethink,
             "memory_finish_edits": self.memory_finish_edits,
             "memory": self.memory,
+            "load_skill": self.load_skill,
         }
 
         if function_name not in function_map:
@@ -912,3 +913,21 @@ class LettaCoreToolExecutor(ToolExecutor):
 
         else:
             raise ValueError(f"Error: Unknown command '{command}'. Supported commands: create, str_replace, insert, delete, rename")
+
+    async def load_skill(self, agent_state: AgentState, actor: User, skill_name: str) -> str:
+        """Load a skill's full content into context."""
+        if not hasattr(agent_state, "skills") or not agent_state.skills:
+            return "Error: No skills are attached to this agent."
+
+        # If only one skill attached, return it regardless of name match
+        if len(agent_state.skills) == 1:
+            skill = agent_state.skills[0]
+            return f"=== SKILL: {skill.name} ===\n\n{skill.content}"
+
+        # Multiple skills — match by name
+        for skill in agent_state.skills:
+            if skill.name == skill_name:
+                return f"=== SKILL: {skill.name} ===\n\n{skill.content}"
+
+        available = ", ".join(s.name for s in agent_state.skills)
+        return f"Error: Skill '{skill_name}' not found. Available skills: {available}"
